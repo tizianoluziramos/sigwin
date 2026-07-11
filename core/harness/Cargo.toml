@@ -1,0 +1,18 @@
+[package]
+name = "harness"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "sigwin-harness"
+path = "src/main.rs"
+
+[dependencies]
+sigwin-core = { path = "../sigwin-core" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+futures = "0.3"
+anyhow = "1"
+qr2term = "0.3"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

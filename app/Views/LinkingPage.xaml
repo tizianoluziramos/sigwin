@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="signal_windows_client.Views.LinkingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                    MaxWidth="420" Spacing="18" Padding="24">
+            <TextBlock Text="Sigwin" FontSize="34" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            <TextBlock Text="Link this device to your phone" Opacity="0.7"
+                       HorizontalAlignment="Center"/>
+
+            <Grid Width="272" Height="272" HorizontalAlignment="Center">
+                <ProgressRing Width="48" Height="48"
+                              IsActive="{x:Bind Not(Vm.HasQr), Mode=OneWay}"/>
+                <Border Background="White" CornerRadius="12" Padding="12"
+                        Visibility="{x:Bind Vis(Vm.HasQr), Mode=OneWay}">
+                    <Image Source="{x:Bind Vm.QrImage, Mode=OneWay}" Stretch="Uniform"/>
+                </Border>
+            </Grid>
+
+            <TextBlock Text="{x:Bind Vm.StatusText, Mode=OneWay}" HorizontalAlignment="Center"
+                       Opacity="0.8" TextWrapping="Wrap" TextAlignment="Center"/>
+
+            <StackPanel Spacing="6" Opacity="0.6" Margin="0,8,0,0">
+                <TextBlock Text="1.  Open Signal on your phone"/>
+                <TextBlock Text="2.  Settings → Linked devices → Link new device"/>
+                <TextBlock Text="3.  Point your phone at this code"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

@@ -1,0 +1,72 @@
+# ===== Rust core (/core) =====
+/target/
+**/target/
+*.pdb
+# Cargo.lock-u SİLMƏ: bu layihə son nəticədə tətbiqdir, lock commit olunmalıdır.
+
+# csbindgen / generated FFI (build zamanı generasiya olunursa)
+/bindings/generated/
+**/*.g.cs
+
+# ===== .NET / C# / Visual Studio (/app) =====
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.rsuser
+*.suo
+*.userprefs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+!packages/build/
+
+/publish/
+
+# ===== WinUI 3 / Windows App SDK / MSIX =====
+Generated Files/
+BundleArtifacts/
+AppPackages/
+*.appx
+*.appxbundle
+*.appxupload
+*.msix
+*.msixbundle
+*.msixupload
+*.pfx
+*.cer
+resources.pri
+
+# ===== KRİTİK: sirlər və lokal sessiya datası =====
+# Signal linked-device sessiyası, açarlar, şifrələnmiş store BURAYA commit OLUNMAMALIDIR
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+/store/
+/data/
+**/*-store/
+.signal-store/
+session/
+*.key
+.env
+.env.*
+secrets.json
+
+# ===== IDE / OS =====
+.idea/
+.vscode/
+*.log
+Thumbs.db
+Desktop.ini
+.DS_Store

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "signal-windows-client (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "signal-windows-client (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

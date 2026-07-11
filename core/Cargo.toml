@@ -1,0 +1,16 @@
+# Sigwin Rust core workspace.
+
+[workspace]
+resolver = "2"
+members = ["sigwin-core", "harness"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+# presage links against the official Rust libsignal, which requires the Signal
+# fork of curve25519-dalek. Required whenever presage is in the dependency graph.
+[patch.crates-io]
+curve25519-dalek = { git = "https://github.com/signalapp/curve25519-dalek", tag = "signal-curve25519-4.1.3" }
