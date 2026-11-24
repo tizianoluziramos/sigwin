@@ -1,0 +1,135 @@
+name: Build Sigwin
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sigwin-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-2025
+
+    env:
+      CARGO_TERM_COLOR: always
+      RUST_BACKTRACE: 1
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          choco install protoc nasm llvm -y --no-progress
+
+          "C:\Program Files\LLVM\bin" >> $env:GITHUB_PATH
+          "C:\Program Files\NASM" >> $env:GITHUB_PATH
+          "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
+
+      - name: Install OpenSSL
+        shell: pwsh
+        run: |
+          $vcpkg = $env:VCPKG_INSTALLATION_ROOT
+
+          & "$vcpkg\vcpkg.exe" install openssl:x64-windows
+
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+          "OPENSSL_DIR=$vcpkg\installed\x64-windows" >> $env:GITHUB_ENV
+          "OPENSSL_STATIC=0" >> $env:GITHUB_ENV
+
+      - name: Verify dependencies
+        shell: pwsh
+        run: |
+          rustc --version
+          cargo --version
+          dotnet --version
+          cmake --version
+          protoc --version
+          nasm -v
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: core -> target
+
+      - name: Build Rust core
+        working-directory: core
+        run: cargo build --release --locked -p sigwin-core
+
+      - name: Restore .NET dependencies
+        run: >
+          dotnet restore app/signal-windows-client.csproj
+          -r win-x64
+          -p:Platform=x64
+
+      - name: Publish Sigwin
+        run: >
+          dotnet publish app/signal-windows-client.csproj
+          -c Release
+          -r win-x64
+          -p:Platform=x64
+          -p:WindowsPackageType=None
+          -p:WindowsAppSDKSelfContained=true
+          -p:PublishTrimmed=false
+          -p:PublishReadyToRun=false
+          --self-contained true
+          -o dist
+
+      - name: Copy native dependencies
+        shell: pwsh
+        run: |
+          Copy-Item core/target/release/sigwin_core.dll dist/
+          Copy-Item "$env:OPENSSL_DIR/bin/*.dll" dist/
+
+      - name: Compress build
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/* -DestinationPath Sigwin-win-x64.zip -Force
+
+      - name: Publish GitHub Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest Build
+          target_commitish: ${{ github.sha }}
+          draft: false
+          prerelease: false
+          make_latest: true
+          overwrite_files: true
+          fail_on_unmatched_files: true
+          files: Sigwin-win-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
