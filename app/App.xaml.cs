@@ -5,7 +5,6 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using signal_windows_client.Services;
 using signal_windows_client.ViewModels;
-using Windows.Storage;
 
 namespace signal_windows_client
 {
@@ -40,7 +39,9 @@ namespace signal_windows_client
             Signal.ProvisioningUrlReceived += url => LinkingVm.ShowQr(url);
             Signal.EventReceived += MainVm.OnEvent;
 
-            _dbPath = Path.Combine(ApplicationData.Current.LocalFolder.Path, "sigwin.db");
+            var dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sigwin");
+            Directory.CreateDirectory(dataPath);
+            _dbPath = Path.Combine(dataPath, "sigwin.db");
             _passphrase = PassphraseStore.GetOrCreate();
 
             _window = new MainWindow();
